@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DARK STORE | Premium Terminal</title>
+    <style>
+        :root {
+            --bg-base: #020206;
+            --panel-glass: rgba(8, 9, 22, 0.82);
+            --border-line: rgba(255, 255, 255, 0.04);
+            --neon-blue: #00f3ff;
+            --neon-purple: #9d4edd;
+            --success-glow: #00ff88;
+            --error-glow: #ff4757;
+            --text-main: #ffffff;
+            --text-muted: #64748b;
+            
+            /* Dynamic Card Gradients */
+            --visa-grad: linear-gradient(135deg, #021f4b 0%, #0b3975 50%, #081226 100%);
+            --mc-grad: linear-gradient(135deg, #2d0b00 0%, #521c04 50%, #140500 100%);
+            --amex-grad: linear-gradient(135deg, #003030 0%, #00524e 50%, #001414 100%);
+            --disc-grad: linear-gradient(135deg, #381a00 0%, #5c2e00 50%, #140b00 100%);
+        }
+
+        /* High Smooth Scrolling Engine */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        /* Anti-Copy and Anti-Zoom Structural Fixes */
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 5% 5%, rgba(0, 243, 255, 0.04) 0%, transparent 35%),
+                radial-gradient(circle at 95% 95%, rgba(157, 78, 221, 0.06) 0%, transparent 40%);
+            background-attachment: fixed;
+            
+            /* Anti-Copy Protocols */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            
+            /* Anti-Zoom UI Safe Guards */
+            touch-action: pan-x pan-y;
+        }
+
+        /* --- Global Terminal Loading Overlay Engine --- */
+        #globalTerminalLoader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 2, 6, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        #globalTerminalLoader.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .cyber-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(157, 78, 221, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--neon-blue);
+            border-bottom-color: var(--neon-purple);
+            animation: cyberSpin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            filter: drop-shadow(0 0 15px var(--neon-blue));
+        }
+        @keyframes cyberSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Auth Screen Styling */
+        #authScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-base);
+            background-image: radial-gradient(circle at 50% 50%, rgba(157, 78, 221, 0.18) 0%, transparent 60%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: var(--panel-glass);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            padding: 45px 40px;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 430px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 40px rgba(0, 243, 255, 0.08);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .auth-logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            filter: drop-shadow(0 0 12px rgba(0, 243, 255, 0.3));
+        }
+
+        .auth-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .auth-form-group {
+            margin-bottom: 22px;
+            text-align: left;
+        }
+
+        .auth-form-group label {
+            display: block;
+            font-size: 11px;
+            color: rgba(0, 243, 255, 0.8);
+            margin-bottom: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .auth-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 15px 18px;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: 0.5px;
+        }
+
+        .auth-input:focus {
+            border-color: var(--neon-blue);
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.25), inset 0 0 8px rgba(0, 243, 255, 0.1);
+        }
+
+        .auth-btn {
+            width: 100%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 20px rgba(157, 78, 221, 0.2);
+        }
+
+        .auth-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.45);
+            transform: scale(1.02);
+        }
+
+        .auth-toggle-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .auth-toggle-text span {
+            color: var(--neon-blue);
+            cursor: pointer;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+
+        .auth-toggle-text span:hover {
+            color: #fff;
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        /* Main Dashboard Configuration */
+        #mainDashboard {
+            display: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020206;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 10px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 5%;
+            background: rgba(2, 2, 6, 0.85);
+            border-bottom: 1px solid var(--border-line);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-box {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.15));
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-hamburger {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .menu-hamburger:hover {
+            color: var(--neon-blue);
+        }
+
+        .pool-trigger {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .pool-trigger:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        .pool-badge {
+            background: linear-gradient(135deg, var(--neon-purple), #6366f1);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .main-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 40px 5%;
+        }
+
+        /* Advanced Core Search & Terminal Filters */
+        .filter-panel-wrapper {
+            background: rgba(10, 11, 28, 0.6);
+            border: 1px solid rgba(0, 243, 255, 0.12);
+            border-radius: 24px;
+            padding: 25px 30px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 0 15px rgba(0,243,255,0.02);
+        }
+
+        .filter-grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        .filter-node {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .filter-node label {
+            font-size: 11px;
+            color: var(--neon-blue);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 6px rgba(0, 243, 255, 0.2);
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #fff;
+            font-size: 13.5px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 12px rgba(157, 78, 221, 0.25);
+        }
+
+        .filter-select option {
+            background: #0b0c1c;
+            color: #fff;
+        }
+
+        /* Assets Grid Architecture */
+        .assets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 25px;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .asset-box {
+            background: var(--panel-glass);
+            border: 1px solid var(--border-line);
+            border-radius: 24px;
+            padding: 20px;
+            backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .asset-box:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .asset-box[data-brand="VISA"]:hover { border-color: #00f3ff; box-shadow: 0 15px 30px rgba(0, 243, 255, 0.1); }
+        .asset-box[data-brand="MASTERCARD"]:hover { border-color: #ff5f00; box-shadow: 0 15px 30px rgba(255, 95, 0, 0.1); }
+        .asset-box[data-brand="AMEX"]:hover { border-color: #00ffcc; box-shadow: 0 15px 30px rgba(0, 255, 204, 0.1); }
+        .asset-box[data-brand="DISCOVER"]:hover { border-color: #ff9900; box-shadow: 0 15px 30px rgba(255, 153, 0, 0.1); }
+
+        .visual-mockup {
+            width: 100%;
+            height: 180px;
+            border-radius: 16px;
+            padding: 20px;
+            color: #fff;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.15), 0 12px 24px rgba(0,0,0,0.4);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .visual-mockup::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 55%);
+            pointer-events: none;
+        }
+
+        .mockup-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mockup-bank-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            opacity: 0.85;
+        }
+
+        .mockup-brand-tag {
+            font-size: 13px;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-visa { color: #00f3ff; text-shadow: 0 0 8px rgba(0,243,255,0.4); }
+        .brand-mastercard { color: #ff5f00; text-shadow: 0 0 8px rgba(255,95,0,0.4); }
+        .brand-amex { color: #00ffcc; text-shadow: 0 0 8px rgba(0,255,204,0.4); }
+        .brand-discover { color: #ff9900; text-shadow: 0 0 8px rgba(255,153,0,0.4); }
+
+        .mockup-mid-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+
+        .mockup-chip-asset {
+            width: 36px;
+            height: 26px;
+            background: linear-gradient(135deg, #ffdf7a 0%, #c99e32 100%);
+            border-radius: 4px;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.5);
+        }
+
+        .mockup-secure-data-row {
+            display: flex;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 12px;
+            border-radius: 8px;
+            width: max-content;
+            border: 1px solid rgba(255,255,255,0.03);
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .mockup-secure-data-row span {
+            color: rgba(255,255,255,0.5);
+            margin-right: 4px;
+        }
+
+        .mockup-secure-data-row strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .mockup-cc-string {
+            font-size: 18px;
+            letter-spacing: 2.5px;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 1px 2px 2px rgba(0,0,0,0.6);
+        }
+
+        .mockup-base-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            opacity: 0.75;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .status-icons-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.02);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .shop-ware-tag {
+            color: var(--success-glow);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shop-ware-tag::before {
+            content: '';
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            background: var(--success-glow);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success-glow);
+        }
+
+        .box-action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .price-text {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .buy-trigger-btn {
+            background: linear-gradient(90deg, #5b21b6 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12.5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .buy-trigger-btn:hover {
+            box-shadow: 0 4px 18px rgba(79, 70, 229, 0.5);
+            transform: scale(1.03);
+        }
+
+        /* Notification Engine Centering Control */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 2, 6, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .popup-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .popup-overlay.payment-locked {
+            pointer-events: auto !important;
+        }
+
+        .notification-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.85);
+            width: 90%;
+            max-width: 440px;
+            background: rgba(10, 11, 28, 0.95);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 243, 255, 0.15);
+            border-radius: 24px;
+            padding: 24px;
+            z-index: 200001;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2), opacity 0.4s ease;
+        }
+        .notification-popup.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .notif-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 14px;
+            width: 100%;
+        }
+        .notif-icon-box {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notif-icon-box.error-box {
+            background: rgba(255, 71, 87, 0.1);
+            border-color: rgba(255, 71, 87, 0.3);
+        }
+        .notif-icon-box svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--success-glow);
+            stroke-width: 2.5;
+            fill: none;
+        }
+        .notif-icon-box.error-box svg {
+            stroke: var(--error-glow);
+        }
+        .notif-text-box {
+            width: 100%;
+        }
+        .notif-text-box h4 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .notif-text-box p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .notif-action-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .notif-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-later {
+            background: rgba(255,255,255,0.04);
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .btn-go-cart {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 243, 255, 0.25);
+        }
+        .btn-ok-only {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            color: #fff;
+            width: 100%;
+        }
+        .btn-copy-all {
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            color: #fff;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);
+        }
+
+        /* Side Drawers */
+        .side-drawer {
+            position: fixed;
+            top: 0;
+            right: -430px;
+            width: 430px;
+            height: 100%;
+            background: rgba(3, 3, 8, 0.9);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            z-index: 2000;
+            transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        .side-drawer.active { right: 0; }
+        .drawer-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-line);
+        }
+        .close-drawer-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 22px;
+            cursor: pointer;
+        }
+        .drawer-bucket-body { flex-grow: 1; overflow-y: auto; }
+        .drawer-bucket-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            margin-bottom: 12px;
+        }
+        .execute-checkout-btn {
+            width: 100%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .nav-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        .nav-menu-item:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 243, 255, 0.03);
+            transform: translateX(-4px);
+        }
+        .nav-menu-item span.icon {
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        .nav-logout-btn {
+            margin-top: auto;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            color: var(--error-glow);
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-logout-btn:hover {
+            background: rgba(255, 71, 87, 0.2);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.15);
+        }
+
+        /* Dynamic Dashboard Content Tables & Injection Layouts */
+        .dynamic-list-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .dynamic-list-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 12px 14px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .matrix-stat-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .matrix-stat-card {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px 8px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .matrix-stat-card div:first-child {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .matrix-stat-card div:last-child {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        /* Cyberpunk QR Payment Page UI Elements */
+        .payment-qr-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 0;
+            width: 100%;
+        }
+        .qr-frame {
+            background: #fff;
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .qr-frame img {
+            width: 160px;
+            height: 160px;
+            display: block;
+        }
+        .payment-amount-lbl {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--success-glow);
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+        }
+        .utr-input-box-wrapper {
+            width: 100%;
+            text-align: left;
+            margin-top: 5px;
+        }
+        .utr-field-lbl {
+            font-size: 11px;
+            color: var(--neon-blue);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .payment-timer-display {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--error-glow);
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            background: rgba(255, 71, 87, 0.1);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            display: inline-block;
+        }
+        .view-cc-btn {
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .view-cc-btn:hover {
+            box-shadow: 0 0 10px var(--success-glow);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="globalTerminalLoader">
+        <div class="cyber-spinner"></div>
+    </div>
+
+    <div class="popup-overlay" id="popupOverlay" onclick="closeNotification()"></div>
+    
+    <div class="notification-popup" id="notifPopup">
+        <div class="notif-header">
+            <div class="notif-icon-box" id="notifIconContainer">
+                <svg id="successSvg" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                <svg id="errorSvg" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <div class="notif-text-box" id="notifTextBox">
+                <h4 id="notifTitle">Notification Banner</h4>
+                <div id="notifCustomBody" style="margin-top: 10px; text-align: left; width: 100%;"></div>
+                <p id="notifDetails">System operations logged.</p>
+            </div>
+        </div>
+        <div class="notif-action-row" id="notifActionContainer"></div>
+    </div>
+
+    <div id="authScreen">
+        <div class="auth-container">
+            <div class="auth-logo">DARK STORE</div>
+            <div class="auth-subtitle" id="authSubtitle">Terminal Core Gate</div>
+            <h3 id="authTitle" style="margin-bottom: 24px; font-weight: 800; font-size: 18px; letter-spacing: 0.5px; text-transform: uppercase;">Account Sign In</h3>
+            
+            <div class="auth-form-group">
+                <label>Email Address</label>
+                <input type="email" id="authEmail" class="auth-input" placeholder="name@example.com">
+            </div>
+            
+            <div class="auth-form-group">
+                <label>Password</label>
+                <input type="password" id="authPassword" class="auth-input" placeholder="••••••••">
+            </div>
+
+            <div class="auth-form-group" id="confirmPasswordGroup" style="display: none;">
+                <label>Confirm Password</label>
+                <input type="password" id="authConfirmPassword" class="auth-input" placeholder="••••••••">
+            </div>
+            
+            <button id="authSubmitBtn" class="auth-btn">Sign In</button>
+            
+            <div class="auth-toggle-text">
+                <span id="authToggleAction" onclick="toggleAuthMode()">Don't have an account? Register</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainDashboard">
+        <header>
+            <div class="logo-area">
+                <span class="logo-box">DARK STORE</span>
+            </div>
+            <div class="header-actions">
+                <div class="pool-trigger" onclick="toggleTerminalDrawer()">
+                    <span>🛒 Cart</span>
+                    <span class="pool-badge" id="poolCount">0</span>
+                </div>
+                <button class="menu-hamburger" onclick="toggleNavMenuDrawer()">☰</button>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <div class="filter-panel-wrapper">
+                <div class="filter-grid-layout">
+                    <div class="filter-node">
+                        <label>Search BIN (6 Digit Only)</label>
+                        <input type="text" id="filterBin" class="filter-input" placeholder="Enter 6 digit BIN to auto-detect bank & country..." maxlength="6" oninput="executeTerminalSearch()">
+                    </div>
+                    <div class="filter-node">
+                        <label>Target Country Filter</label>
+                        <select id="filterCountry" class="filter-select" onchange="executeTerminalSearch()">
+                            <option value="ALL">ALL COUNTRIES</option>
+                            <option value="UNITED STATES">UNITED STATES</option>
+                            <option value="CANADA">CANADA</option>
+                            <option value="GERMANY">GERMANY</option>
+                            <option value="BRAZIL">BRAZIL</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="assets-grid" id="assetGridHolder"></div>
+        </div>
+
+        <div class="side-drawer" id="terminalDrawer">
+            <div class="drawer-header-row">
+                <h2 style="font-size: 18px; font-weight: 700;">My Cart</h2>
+                <button class="close-drawer-btn" onclick="toggleTerminalDrawer()">✕</button>
+            </div>
+            <div class="drawer-bucket-body" id="drawerContainerList"></div>
+            <div class="drawer-footer-row">
+                <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                    <span>Total Cost:</span>
+                    <span id="drawerTotalValue" style="color: var(--neon-blue);">₹0</span>
+                </div>
+                <button class="execute-checkout-btn" onclick="checkoutTerminal()">Checkout</button>
+            </div>
+        </div>
+
+        <div class="side-drawer" id="navMenuDrawer">
+            <div class="drawer-header-row">
+                <h2 style="font-size: 18px; font-weight: 700;">Navigation Portal</h2>
+                <button class="close-drawer-btn" onclick="toggleNavMenuDrawer()">✕</button>
+            </div>
+            <div class="drawer-bucket-body" style="display: flex; flex-direction: column; height: 100%;">
+                <div class="nav-menu-item" onclick="handleNavAction('My Profile')">
+                    <span class="icon">👤</span>
+                    <div>
+                        <div>My Profile</div>
+                        <div id="userProfileEmail" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">loading session...</div>
+                    </div>
+                </div>
+                <div class="nav-menu-item" onclick="handleNavAction('My Orders')">
+                    <span class="icon">📦</span>
+                    <span>My Orders</span>
+                </div>
+                <div class="nav-menu-item" onclick="handleNavAction('Cart & Billing')">
+                    <span class="icon">💳</span>
+                    <span>Cart & Billing</span>
+                </div>
+                <button class="nav-logout-btn" id="logoutBtn">Logout Secure Session</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Anti Copy Systems
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 85 || e.keyCode === 73)) {
+                e.preventDefault();
+            }
+        });
+
+        // Global Loading System Controller
+        window.triggerTerminalLoader = function(callback) {
+            const loader = document.getElementById('globalTerminalLoader');
+            loader.classList.add('active');
+            setTimeout(() => {
+                loader.classList.remove('active');
+                if(callback && typeof callback === 'function') callback();
+            }, 1500);
+        };
+
+        // Initialize loader on startup window paint
+        window.addEventListener('DOMContentLoaded', () => {
+            window.triggerTerminalLoader();
+        });
+
+        const brands = [
+            { name: 'VISA', grad: 'var(--visa-grad)', cssClass: 'brand-visa' },
+            { name: 'MASTERCARD', grad: 'var(--mc-grad)', cssClass: 'brand-mastercard' },
+            { name: 'AMEX', grad: 'var(--amex-grad)', cssClass: 'brand-amex' },
+            { name: 'DISCOVER', grad: 'var(--disc-grad)', cssClass: 'brand-discover' }
+        ];
+
+        const banks = ['CHASE PRO', 'BARCLAYS USA', 'WELLS PLATINUM', 'CITI INFRA', 'BOA GLOBAL', 'CAPITAL ELITE'];
+        const tiers = ['INFINITE', 'BUSINESS', 'SIGNATURE', 'ROYAL PLATINUM'];
+        const countries = ['UNITED STATES', 'CANADA', 'GERMANY', 'BRAZIL'];
+
+        window.database = [];
+        window.paymentTimerInterval = null;
+        window.isPaymentLocked = false;
+
+        // Regional Datasets for Card Generation
+        const geoData = {
+            'UNITED STATES': {
+                names: ['John Miller', 'Sarah Jenkins', 'Robert Vance', 'Emily Davis'],
+                addresses: ['742 Evergreen Terrace', '104 Corporate Blvd', '589 Broadway St', '1204 Elm St'],
+                cities: ['New York', 'Los Angeles', 'Chicago', 'Miami'],
+                states: ['NY', 'CA', 'IL', 'FL'],
+                zips: ['10001', '90001', '60601', '33101'],
+                phones: ['+1 (555) 019-2834', '+1 (555) 014-9921', '+1 (555) 017-8832']
+            },
+            'CANADA': {
+                names: ['Jean Tremblay', 'David Smith', 'Amelie Roy', 'Robert Martin'],
+                addresses: ['456 Rue de l\'Eglise', '789 Bay St', '1010 Sherbrooke St', '12 George St'],
+                cities: ['Toronto', 'Montreal', 'Vancouver', 'Ottawa'],
+                states: ['ON', 'QC', 'BC', 'ON'],
+                zips: ['M5V 2T6', 'H3B 1A7', 'V6B 4Y8', 'K1P 5J2'],
+                phones: ['+1 (416) 555-0143', '+1 (514) 555-0176', '+1 (604) 555-0199']
+            },
+            'GERMANY': {
+                names: ['Müller Thomas', 'Schmidt Stefan', 'Fischer Andreas', 'Weber Michael'],
+                addresses: ['Hauptstraße 14', 'Schillerstraße 89', 'Berliner Straße 102', 'Mozartstraße 4'],
+                cities: ['Berlin', 'Munich', 'Frankfurt', 'Hamburg'],
+                states: ['Berlin', 'Bayern', 'Hessen', 'Hamburg'],
+                zips: ['10115', '80331', '60311', '20095'],
+                phones: ['+49 30 5550132', '+49 89 5550187', '+49 69 5550143']
+            },
+            'BRAZIL': {
+                names: ['Lucas Silva', 'Gabriel Santos', 'Rodrigo Oliveira', 'Ana Costa'],
+                addresses: ['Av. Paulista 1200', 'Rua Augusta 450', 'Av. Atlântica 2040', 'Rua das Flores 99'],
+                cities: ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Brasília'],
+                states: ['SP', 'RJ', 'MG', 'DF'],
+                zips: ['01310-100', '22021-001', '30140-010', '70040-010'],
+                phones: ['+55 11 98888-0123', '+55 21 97777-0145', '+55 61 96666-0198']
+            }
+        };
+
+        // Populate Main Memory Array
+        for (let i = 1; i <= 100; i++) {
+            let brandObj;
+            let rollDistribution = Math.random();
+            
+            if (rollDistribution < 0.80) {
+                brandObj = Math.random() < 0.5 ? brands[0] : brands[1]; 
+            } else {
+                brandObj = Math.random() < 0.5 ? brands[2] : brands[3];
+            }
+
+            let bin = '';
+            if (brandObj.name === 'AMEX') {
+                bin = '37' + Math.floor(1000 + Math.random() * 8999);
+            } else if (brandObj.name === 'VISA') {
+                bin = '4' + Math.floor(10000 + Math.random() * 89999);
+            } else if (brandObj.name === 'MASTERCARD') {
+                bin = '5' + Math.floor(10000 + Math.random() * 89999);
+            } else {
+                bin = '6' + Math.floor(10000 + Math.random() * 89999);
+            }
+
+            let bank = banks[Math.floor(Math.random() * banks.length)];
+            let tier = tiers[Math.floor(Math.random() * tiers.length)];
+            let country = countries[Math.floor(Math.random() * countries.length)];
+            
+            let expMonth = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
+            let expYear = Math.floor(2027 + Math.random() * 6);
+            let cvv = Math.floor(100 + Math.random() * 899);
+
+            let price;
+            let diceRoll = Math.random();
+            if (diceRoll < 0.65) { 
+                price = 500 + (Math.floor(Math.random() * 3) * 50);
+            } else if (diceRoll < 0.90) {
+                price = 650 + (Math.floor(Math.random() * 5) * 50);
+            } else {
+                price = 950 + (Math.floor(Math.random() * 10) * 50);
+            }
+
+            window.database.push({
+                id: i,
+                bin: bin,
+                bank: bank,
+                tier: tier,
+                brand: brandObj.name,
+                gradient: brandObj.grad,
+                brandClass: brandObj.cssClass,
+                country: country,
+                exp: `${expMonth}/${String(expYear).substring(2)}`,
+                cvv: cvv,
+                price: price
+            });
+        }
+
+        window.currentCart = [];
+        window.currentUserUid = null;
+        window.currentUserEmail = '';
+        window.currentUserRegDate = '';
+
+        // UI View Interactions Methods Linked to Global Space safely
+        window.toggleAuthMode = function() {
+            window.triggerTerminalLoader(() => {
+                const title = document.getElementById('authTitle');
+                const submitBtn = document.getElementById('authSubmitBtn');
+                const toggleAction = document.getElementById('authToggleAction');
+                const confirmGroup = document.getElementById('confirmPasswordGroup');
+
+                if(confirmGroup.style.display === "none" || confirmGroup.style.display === "") {
+                    title.innerText = "Create New Account";
+                    submitBtn.innerText = "Register";
+                    toggleAction.innerText = "Already have an account? Sign In";
+                    confirmGroup.style.display = "block";
+                } else {
+                    title.innerText = "Account Sign In";
+                    submitBtn.innerText = "Sign In";
+                    toggleAction.innerText = "Don't have an account? Register";
+                    confirmGroup.style.display = "none";
+                }
+            });
+        };
+
+        window.toggleTerminalDrawer = function() {
+            if(window.isPaymentLocked) return;
+            window.triggerTerminalLoader(() => {
+                document.getElementById('navMenuDrawer').classList.remove('active');
+                document.getElementById('terminalDrawer').classList.toggle('active');
+            });
+        };
+
+        window.toggleNavMenuDrawer = function() {
+            if(window.isPaymentLocked) return;
+            window.triggerTerminalLoader(() => {
+                document.getElementById('terminalDrawer').classList.remove('active');
+                document.getElementById('navMenuDrawer').classList.toggle('active');
+            });
+        };
+
+        window.triggerCartView = function() {
+            window.closeNotification();
+            document.getElementById('terminalDrawer').classList.add('active');
+        };
+
+        window.closeNotification = function() {
+            if(window.isPaymentLocked && !window.allowErrorDismissal) return; 
+            document.getElementById('notifPopup').classList.remove('show');
+            document.getElementById('popupOverlay').classList.remove('show');
+            window.allowErrorDismissal = false; 
+        };
+
+        window.showSystemPopup = function(title, description, isError = false, isAuthAction = false, customBodyHtml = '', rawTextToCopy = '') {
+            if(window.isPaymentLocked && !isError && title !== "Payment Success" && title !== "Generated CC Details") return; 
+
+            if(isError) {
+                window.allowErrorDismissal = true;
+            }
+
+            document.getElementById('notifTitle').innerText = title;
+            document.getElementById('notifDetails').innerText = description;
+            
+            const iconBox = document.getElementById('notifIconContainer');
+            const successSvg = document.getElementById('successSvg');
+            const errorSvg = document.getElementById('errorSvg');
+            const actionContainer = document.getElementById('notifActionContainer');
+            const customBody = document.getElementById('notifCustomBody');
+
+            if (customBodyHtml) {
+                customBody.innerHTML = customBodyHtml;
+                customBody.style.display = 'block';
+                document.getElementById('notifDetails').style.display = 'none';
+            } else {
+                customBody.style.display = 'none';
+                document.getElementById('notifDetails').style.display = 'block';
+            }
+
+            if(isError) {
+                iconBox.classList.add('error-box');
+                successSvg.style.display = 'none';
+                errorSvg.style.display = 'block';
+            } else {
+                iconBox.classList.remove('error-box');
+                successSvg.style.display = 'block';
+                errorSvg.style.display = 'none';
+            }
+
+            if(title === "Payment Success") {
+                actionContainer.innerHTML = `<button class="notif-btn btn-go-cart" onclick="closeNotification(); handleNavAction('My Orders');">My Orders</button>`;
+            } else if(title === "Generated CC Details") {
+                window.tempCopyData = rawTextToCopy;
+                actionContainer.innerHTML = `
+                    <button class="notif-btn btn-copy-all" onclick="executeClipboardCopy()">Copy Details</button>
+                    <button class="notif-btn btn-ok-only" onclick="closeNotification()">OK</button>
+                `;
+            } else if(isAuthAction || isError || customBodyHtml) {
+                actionContainer.innerHTML = `<button class="notif-btn btn-ok-only" onclick="closeNotification()">OK</button>`;
+            } else {
+                actionContainer.innerHTML = `
+                    <button class="notif-btn btn-later" onclick="closeNotification()">Later</button>
+                    <button class="notif-btn btn-go-cart" onclick="triggerCartView()">Go to Cart</button>
+                `;
+            }
+
+            document.getElementById('popupOverlay').classList.add('show');
+            document.getElementById('notifPopup').classList.add('show');
+        };
+
+        window.executeClipboardCopy = function() {
+            if(window.tempCopyData) {
+                const el = document.createElement('textarea');
+                el.value = window.tempCopyData;
+                el.setAttribute('readonly', '');
+                el.style.position = 'absolute';
+                el.style.left = '-9999px';
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert("Copied to Clipboard!");
+            }
+        };
+
+        window.executeTerminalSearch = function() {
+            const searchBinVal = document.getElementById('filterBin').value.trim();
+            const countryVal = document.getElementById('filterCountry').value;
+
+            let activePool = [...window.database];
+
+            if(searchBinVal.length === 6) {
+                let explicitBrand = brands[3]; 
+                if(searchBinVal.startsWith('4')) explicitBrand = brands[0];
+                else if(searchBinVal.startsWith('5')) explicitBrand = brands[1];
+                else if(searchBinVal.startsWith('3')) explicitBrand = brands[2];
+
+                let detectedBank = "GLOBAL PREMIUM ROOT";
+                let detectedCountry = "UNITED STATES";
+                let systemFixedPrice = 600; 
+
+                if(searchBinVal.substring(1,3) === '00' || searchBinVal.substring(1,3) === '22') {
+                    detectedBank = "CHASE SYSTEM CORE";
+                } else if(searchBinVal.substring(1,3) === '10' || searchBinVal.substring(1,3) === '50') {
+                    detectedBank = "BARCLAYS TERMINAL";
+                } else if(searchBinVal.substring(1,3) === '44' || searchBinVal.substring(1,3) === '30') {
+                    detectedBank = "CITI PLATINUM MAINFRAME";
+                } else if(searchBinVal.substring(2,4) === '88' || searchBinVal.substring(2,4) === '12') {
+                    detectedBank = "WELLS FARGO ULTRA";
+                }
+
+                if(searchBinVal.endsWith('1') || searchBinVal.endsWith('7')) {
+                    detectedCountry = "CANADA";
+                } else if(searchBinVal.endsWith('2') || searchBinVal.endsWith('8')) {
+                    detectedCountry = "GERMANY";
+                } else if(searchBinVal.endsWith('3') || searchBinVal.endsWith('9')) {
+                    detectedCountry = "BRAZIL";
+                } else {
+                    detectedCountry = "UNITED STATES";
+                }
+
+                if(explicitBrand.name === 'AMEX' || explicitBrand.name === 'DISCOVER') {
+                    systemFixedPrice = 850; 
+                } else if(searchBinVal.startsWith('41') || searchBinVal.startsWith('55')) {
+                    systemFixedPrice = 750; 
+                } else {
+                    systemFixedPrice = 550; 
+                }
+
+                const customAsset = {
+                    id: 9999,
+                    bin: searchBinVal,
+                    bank: detectedBank,
+                    tier: 'SUPREME ELITE',
+                    brand: explicitBrand.name,
+                    gradient: explicitBrand.grad,
+                    brandClass: explicitBrand.cssClass,
+                    country: detectedCountry,
+                    exp: '12/31',
+                    cvv: 777,
+                    price: systemFixedPrice
+                };
+                activePool.unshift(customAsset);
+            }
+
+            const filteredSet = activePool.filter(card => {
+                const matchesBin = card.bin.startsWith(searchBinVal);
+                const matchesCountry = (countryVal === 'ALL' || card.country === countryVal);
+                return matchesBin && matchesCountry;
+            });
+
+            window.renderStoreGrid(filteredSet);
+        };
+
+        window.pushToBucket = function(id, bin, brand, price, country, bank) {
+            if(window.isPaymentLocked) return;
+            window.triggerTerminalLoader(() => {
+                let asset = window.database.find(x => x.id === id);
+                if(!asset && id === 9999) {
+                    asset = {
+                        id: Date.now(), 
+                        bin: bin,
+                        brand: brand,
+                        price: price,
+                        country: country,
+                        bank: bank,
+                        exp: '12/31',
+                        cvv: 777
+                    };
+                }
+
+                if(asset && !window.currentCart.some(c => c.bin === asset.bin)) {
+                    window.currentCart.push(asset);
+                    
+                    if (window.currentUserUid) {
+                        localStorage.setItem('cart_' + window.currentUserUid, JSON.stringify(window.currentCart));
+                    }
+                    
+                    window.refreshDrawerUI();
+                    window.showSystemPopup("Asset Added Successfully", `${asset.brand} - BIN: ${asset.bin} [${asset.country}] has been cached.`, false, false);
+                }
+            });
+        };
+
+        window.removeAsset = function(id) {
+            if(window.isPaymentLocked) return;
+            window.triggerTerminalLoader(() => {
+                window.currentCart = window.currentCart.filter(x => x.id !== id);
+                
+                if (window.currentUserUid) {
+                    localStorage.setItem('cart_' + window.currentUserUid, JSON.stringify(window.currentCart));
+                }
+                
+                let cancelledCount = parseInt(localStorage.getItem('cancel_count_' + window.currentUserUid) || 0);
+                localStorage.setItem('cancel_count_' + window.currentUserUid, cancelledCount + 1);
+
+                window.refreshDrawerUI();
+            });
+        };
+
+        window.viewGeneratedCard = function(orderId) {
+            window.triggerTerminalLoader(() => {
+                let orders = JSON.parse(localStorage.getItem('orders_' + window.currentUserUid) || '[]');
+                let matchedOrder = orders.find(o => o.orderId == orderId);
+                if (!matchedOrder) return;
+
+                if(matchedOrder.status !== 'ACCEPTED') {
+                    window.showSystemPopup("Order Awaiting Review", "This asset processing status is currently pending verification from terminal command controllers.", true);
+                    return;
+                }
+
+                let c = matchedOrder.country;
+                let region = geoData[c] || geoData['UNITED STATES'];
+                
+                let index = orderId % region.names.length;
+                let holder = region.names[index];
+                let addr = region.addresses[index];
+                let city = region.cities[index];
+                let state = region.states[index];
+                let zip = region.zips[index];
+                let phone = region.phones[index % region.phones.length];
+                let email = holder.toLowerCase().replace(' ', '') + "@gmail.com";
+
+                let fakeNumSuffix = String(Math.floor(1000000000 + Math.random() * 8999999999));
+                let finalCcStr = matchedOrder.bin + fakeNumSuffix;
+                if(matchedOrder.brand === 'AMEX') finalCcStr = matchedOrder.bin + fakeNumSuffix.substring(0, 9);
+
+                let ccDetailsHtml = `
+                    <div style="background:rgba(0,0,0,0.5); border:1px solid rgba(0,243,255,0.2); padding:16px; border-radius:14px; font-size:13px; color:#fff; display:flex; flex-direction:column; gap:8px;">
+                        <div><span style="color:var(--text-muted);">CC Number:</span> <strong style="color:var(--neon-blue); font-size:14px; letter-spacing:1px;">${finalCcStr}</strong></div>
+                        <div><span style="color:var(--text-muted);">CVV:</span> <strong>${matchedOrder.cvv || '392'}</strong></div>
+                        <div><span style="color:var(--text-muted);">Expiration:</span> <strong>${matchedOrder.exp || '08/29'}</strong></div>
+                        <div><span style="color:var(--text-muted);">Card Holder:</span> <strong>${holder}</strong></div>
+                        <div><span style="color:var(--text-muted);">Address:</span> <strong>${addr}</strong></div>
+                        <div><span style="color:var(--text-muted);">Bank Name:</span> <strong>${matchedOrder.bank}</strong></div>
+                        <div><span style="color:var(--text-muted);">Card Type:</span> <strong>${matchedOrder.brand} - SECURE PREMIUM</strong></div>
+                        <div><span style="color:var(--text-muted);">ZIP Code:</span> <strong>${zip}</strong></div>
+                        <div><span style="color:var(--text-muted);">City:</span> <strong>${city}</strong></div>
+                        <div><span style="color:var(--text-muted);">State:</span> <strong>${state}</strong></div>
+                        <div><span style="color:var(--text-muted);">Country:</span> <strong>${matchedOrder.country}</strong></div>
+                        <div><span style="color:var(--text-muted);">Email Block:</span> <strong>${email}</strong></div>
+                        <div><span style="color:var(--text-muted);">Phone Node:</span> <strong>${phone}</strong></div>
+                    </div>
+                `;
+
+                let rawTextToCopy = `CC Number: ${finalCcStr}\nCVV: ${matchedOrder.cvv || '392'}\nExpiration: ${matchedOrder.exp || '08/29'}\nCard Holder: ${holder}\nAddress: ${addr}\nBank Name: ${matchedOrder.bank}\nCard Type: ${matchedOrder.brand} - SECURE PREMIUM\nZIP Code: ${zip}\nCity: ${city}\nState: ${state}\nCountry: ${matchedOrder.country}\nEmail Block: ${email}\nPhone Node: ${phone}`;
+                
+                window.showSystemPopup("Generated CC Details", "", false, false, ccDetailsHtml, rawTextToCopy);
+            });
+        };
+
+        window.handleNavAction = function(actionName) {
+            if(window.isPaymentLocked) return;
+            window.triggerTerminalLoader(() => {
+                document.getElementById('navMenuDrawer').classList.remove('active');
+                
+                if (actionName === 'My Profile') {
+                    let profileHtml = `
+                        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--neon-blue); padding:16px; border-radius:14px; box-shadow: 0 0 15px rgba(0,243,255,0.1);">
+                            <div style="margin-bottom:12px;"><span style="color:var(--text-muted); font-size:11px; font-weight:700; text-transform:uppercase;">Registered Email:</span><div style="font-size:14px; font-weight:700; color:#fff; margin-top:2px;">${window.currentUserEmail}</div></div>
+                            <div><span style="color:var(--text-muted); font-size:11px; font-weight:700; text-transform:uppercase;">Registration Date:</span><div style="font-size:13px; font-weight:600; color:var(--neon-purple); margin-top:2px;">📅 ${window.currentUserRegDate || 'Live Session Registered'}</div></div>
+                        </div>
+                    `;
+                    window.showSystemPopup("User Matrix Profile", "", false, false, profileHtml);
+                } 
+                else if (actionName === 'My Orders') {
+                    let orders = JSON.parse(localStorage.getItem('orders_' + window.currentUserUid) || '[]');
+                    let ordersHtml = `<div class="dynamic-list-group">`;
+                    
+                    if (orders.length === 0) {
+                        ordersHtml += `<div style="text-align:center; color:var(--text-muted); padding:20px; font-weight:600;">No execution orders found inside database!</div>`;
+                    } else {
+                        for (let i = orders.length - 1; i >= 0; i--) {
+                            let ord = orders[i];
+                            let statusColor = '#eab308'; 
+                            if(ord.status === 'ACCEPTED') statusColor = '#00ff88';
+                            if(ord.status === 'CANCELLED') statusColor = '#ff4757';
+
+                            ordersHtml += `
+                                <div class="dynamic-list-item" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                                    <div style="width: 100%; display: flex; justify-content: space-between;">
+                                        <span style="color:var(--text-muted); font-size:11px;">Order ID: <strong style="color:#fff;">#ORD${ord.orderId}</strong></span>
+                                        <span style="color:var(--success-glow); font-weight:700;">₹${ord.price}</span>
+                                    </div>
+                                    <div style="font-size:13px; color:#fff;">BIN: <strong style="color:var(--neon-blue);">${ord.bin} (${ord.brand})</strong></div>
+                                    <div style="font-size:12px; color:var(--text-muted);">STATUS: <strong style="color:${statusColor}; text-transform:uppercase;">${ord.status || 'PENDING'}</strong></div>
+                                    <div style="font-size:12px; color:var(--text-muted);">UTR: <strong style="color:var(--neon-purple);">${ord.utr}</strong></div>
+                                    <div style="font-size:11px; color:var(--text-muted); width:100%; display:flex; justify-content:space-between; margin-top:4px; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px; align-items: flex-end;">
+                                        <div>
+                                            <div>Det: <strong>${ord.bank}</strong></div>
+                                            <div style="margin-top:2px;">Time: <strong>${ord.dateTime}</strong></div>
+                                        </div>
+                                        <button class="view-cc-btn" ${ord.status !== 'ACCEPTED' ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''} onclick="window.viewGeneratedCard(${ord.orderId});">View Card</button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                    ordersHtml += `</div>`;
+                    window.showSystemPopup("Order Purchase History", "", false, false, ordersHtml);
+                } 
+                else if (actionName === 'Cart & Billing') {
+                    let orders = JSON.parse(localStorage.getItem('orders_' + window.currentUserUid) || '[]');
+                    let totalSpent = orders.filter(o => o.status === 'ACCEPTED').reduce((sum, current) => sum + current.price, 0);
+                    let successfulCount = orders.filter(o => o.status === 'ACCEPTED').length;
+                    let cancelledCount = orders.filter(o => o.status === 'CANCELLED').length + parseInt(localStorage.getItem('cancel_count_' + window.currentUserUid) || 0);
+
+                    let billingHtml = `
+                        <div class="matrix-stat-row">
+                            <div class="matrix-stat-card"><div>Total Spent</div><div style="color:var(--neon-blue);">₹${totalSpent}</div></div>
+                            <div class="matrix-stat-card"><div>Success</div><div style="color:var(--success-glow);">${successfulCount}</div></div>
+                            <div class="matrix-stat-card"><div>Cancelled</div><div style="color:var(--error-glow);">${cancelledCount}</div></div>
+                        </div>
+                        <div style="font-size:11px; color:var(--text-muted); text-align:center; letter-spacing:0.5px;">SECURE INFRASTRUCTURE CRYPTO BILLING LOGS</div>
+                    `;
+                    window.showSystemPopup("Billing Financial Summary", "", false, false, billingHtml);
+                }
+            });
+        };
+
+        window.refreshDrawerUI = function() {
+            document.getElementById('poolCount').innerText = window.currentCart.length;
+            const target = document.getElementById('drawerContainerList');
+            if (!target) return;
+            target.innerHTML = '';
+
+            let aggregatedSum = 0;
+            window.currentCart.forEach(item => {
+                aggregatedSum += item.price;
+                target.innerHTML += `
+                    <div class="drawer-bucket-item">
+                        <div>
+                            <h4 style="font-size:13.5px; font-weight:700; color:#fff;">${item.bin} - ${item.brand}</h4>
+                            <p style="color:var(--text-muted); font-size:11px; margin-top:2px;">BANK: ${item.bank || 'SYSTEM'} | ${item.country}</p>
+                        </div>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <span style="font-weight:700; color:var(--neon-blue);">₹${item.price.toLocaleString('en-IN')}</span>
+                            <button onclick="window.removeAsset(${item.id})" style="background:none; border:none; color:#f87171; cursor:pointer; font-weight:bold; font-size:14px;">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('drawerTotalValue').innerText = '₹' + aggregatedSum.toLocaleString('en-IN');
+        };
+
+        window.renderStoreGrid = function(dataset) {
+            const container = document.getElementById('assetGridHolder');
+            if(!container) return;
+            container.innerHTML = '';
+
+            if(dataset.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted); font-weight:700; font-size:16px;">NO MATCHED 6-DIGIT BIN POOLS FOUND INSIDE ENCRYPTED MAINFRAME!</div>`;
+                return;
+            }
+
+            dataset.forEach((item) => {
+                container.innerHTML += `
+                    <div class="asset-box" data-brand="${item.brand}">
+                        <div class="visual-mockup" style="background: ${item.gradient}">
+                            <div class="mockup-top-row">
+                                <span class="mockup-bank-title">${item.bank}</span>
+                                <span class="mockup-brand-tag ${item.brandClass}">${item.brand}</span>
+                            </div>
+                            <div class="mockup-mid-row">
+                                <div class="mockup-chip-asset"></div>
+                                <div class="mockup-secure-data-row">
+                                    <div><span>EXP:</span><strong>${item.exp}</strong></div>
+                                    <div><span>CVV:</span><strong>${item.cvv}</strong></div>
+                                </div>
+                            </div>
+                            <div class="mockup-cc-string">${item.bin}•• •••• ••••</div>
+                            <div class="mockup-base-info">
+                                <div>Tier: <strong>${item.tier}</strong></div>
+                                <div style="font-weight: 700; font-size:10px;">${item.country}</div>
+                            </div>
+                        </div>
+
+                        <div class="status-icons-box">
+                            <span class="shop-ware-tag">100% LIVE</span>
+                        </div>
+
+                        <div class="box-action-row">
+                            <span class="price-text">₹${item.price.toLocaleString('en-IN')}</span>
+                            <button class="buy-trigger-btn" onclick="window.pushToBucket(${item.id}, '${item.bin}', '${item.brand}', ${item.price}, '${item.country}', '${item.bank}')">Add Cart</button>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        window.checkoutTerminal = function() {
+            if(window.currentCart.length === 0) {
+                window.showSystemPopup("Terminal Warning", "Core active pool is empty!", true);
+                return;
+            }
+
+            window.triggerTerminalLoader(() => {
+                let aggregatedSum = window.currentCart.reduce((sum, item) => sum + item.price, 0);
+                window.isPaymentLocked = true;
+                
+                document.getElementById('popupOverlay').classList.add('show', 'payment-locked');
+                
+                let paymentHtml = `
+                    <div class="payment-qr-wrapper">
+                        <div class="payment-timer-display" id="paymentCountdown">05:00</div>
+                        <div class="qr-frame">
+                            <img src="https://i.postimg.cc/XJVdDnjJ/IMG-20260604-103033.png" alt="UPI QR Code">
+                        </div>
+                        <div class="payment-amount-lbl">Pay: ₹${aggregatedSum.toLocaleString('en-IN')}</div>
+                        <div class="utr-input-box-wrapper">
+                            <label class="utr-field-lbl">Submit UTR (12-Digit Transaction ID)</label>
+                            <input type="text" id="utrFieldInput" class="auth-input" maxlength="12" placeholder="Enter 12 digit UTR number..." style="border-color: rgba(0, 243, 255, 0.4);">
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('notifTitle').innerText = "Gateway Billing Portal";
+                document.getElementById('notifDetails').style.display = 'none';
+                
+                const customBody = document.getElementById('notifCustomBody');
+                customBody.innerHTML = paymentHtml;
+                customBody.style.display = 'block';
+
+                const iconBox = document.getElementById('notifIconContainer');
+                iconBox.classList.remove('error-box');
+                document.getElementById('successSvg').style.display = 'block';
+                document.getElementById('errorSvg').style.display = 'none';
+
+                const actionContainer = document.getElementById('notifActionContainer');
+                actionContainer.innerHTML = `<button class="notif-btn btn-go-cart" id="utrSubmitBtn" style="width:100%;">Submit Payment</button>`;
+
+                document.getElementById('notifPopup').classList.add('show');
+
+                let totalTimeSeconds = 300; 
+                clearInterval(window.paymentTimerInterval);
+                
+                window.paymentTimerInterval = setInterval(() => {
+                    totalTimeSeconds--;
+                    let mins = String(Math.floor(totalTimeSeconds / 60)).padStart(2, '0');
+                    let secs = String(totalTimeSeconds % 60).padStart(2, '0');
+                    
+                    let timerElement = document.getElementById('paymentCountdown');
+                    if(timerElement) timerElement.innerText = `${mins}:${secs}`;
+
+                    if(totalTimeSeconds <= 0) {
+                        clearInterval(window.paymentTimerInterval);
+                        window.isPaymentLocked = false;
+                        document.getElementById('popupOverlay').classList.remove('payment-locked');
+                        
+                        let cancelledCount = parseInt(localStorage.getItem('cancel_count_' + window.currentUserUid) || 0);
+                        localStorage.setItem('cancel_count_' + window.currentUserUid, cancelledCount + window.currentCart.length);
+                        
+                        window.showSystemPopup("Order Cancelled", "Time limit exceeded! 5 minutes session elapsed. Order cancelled automatically.", true);
+                    }
+                }, 1000);
+
+                document.getElementById('utrSubmitBtn').onclick = function() {
+                    const utrField = document.getElementById('utrFieldInput');
+                    if(!utrField) return;
+                    const utrVal = utrField.value.trim();
+                    
+                    if(utrVal.length !== 12 || isNaN(utrVal)) {
+                        window.isPaymentLocked = false; 
+                        window.showSystemPopup("Verification Failed", "Please enter a valid 12-digit numeric UTR number to verify transaction inside registry!", true);
+                        window.isPaymentLocked = true; 
+                        return;
+                    }
+
+                    window.triggerTerminalLoader(() => {
+                        clearInterval(window.paymentTimerInterval);
+                        window.isPaymentLocked = false;
+                        document.getElementById('popupOverlay').classList.remove('payment-locked');
+
+                        let existingOrders = JSON.parse(localStorage.getItem('orders_' + window.currentUserUid) || '[]');
+                        let now = new Date();
+                        let timestampStr = now.toLocaleString();
+                        let randomOrderId = Math.floor(100000 + Math.random() * 900000);
+
+                        window.currentCart.forEach(item => {
+                            existingOrders.push({
+                                orderId: randomOrderId,
+                                userEmail: window.currentUserEmail || 'unknown@terminal.com',
+                                userUid: window.currentUserUid,
+                                bin: item.bin,
+                                brand: item.brand,
+                                bank: item.bank || 'SYSTEM TERMINAL',
+                                country: item.country,
+                                price: item.price,
+                                utr: utrVal,
+                                exp: item.exp || '08/29',
+                                cvv: item.cvv || '432',
+                                dateTime: timestampStr,
+                                status: 'PENDING', 
+                                unixTimestamp: Date.now()
+                            });
+                        });
+                        localStorage.setItem('orders_' + window.currentUserUid, JSON.stringify(existingOrders));
+
+                        window.currentCart = [];
+                        if (window.currentUserUid) {
+                            localStorage.removeItem('cart_' + window.currentUserUid);
+                        }
+                        
+                        window.refreshDrawerUI();
+                        document.getElementById('terminalDrawer').classList.remove('active');
+                        
+                        window.showSystemPopup("Payment Success", "Your 12 digit UTR verification verified successfully! Order logged inside database pending manual controller clearance.", false, false);
+                    });
+                };
+            });
+        };
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBpMVq5oNR4IEqy9FuOEbo8zqXx6tiWZCM",
+            authDomain: "madarablzr.firebaseapp.com",
+            databaseURL: "https://madarablzr-default-rtdb.firebaseio.com",
+            projectId: "madarablzr",
+            storageBucket: "madarablzr.firebasestorage.app",
+            messagingSenderId: "1043305827290",
+            appId: "1:1043305827290:android:1357068788acf1e54a4ee3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Global context bindings for Firebase Functions inside layout space
+        window.executeFirebaseAuthAction = function() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const confirmPassword = document.getElementById('authConfirmPassword').value;
+            const isRegisterMode = document.getElementById('confirmPasswordGroup').style.display === "block";
+
+            if(!email || !password) {
+                window.showSystemPopup("Security Warning", "Please fill all security parameters inside fields!", true);
+                return;
+            }
+
+            window.triggerTerminalLoader(() => {
+                if(isRegisterMode) {
+                    if(password !== confirmPassword) {
+                        window.showSystemPopup("Match Error", "Confirm password statement does not match initial keys!", true);
+                        return;
+                    }
+
+                    createUserWithEmailAndPassword(auth, email, password)
+                        .then((userCredential) => {
+                            let now = new Date();
+                            localStorage.setItem('reg_date_' + userCredential.user.uid, now.toLocaleString());
+                            window.showSystemPopup("Success Status", "Account registration successful! Access granted.", false, true);
+                        })
+                        .catch((error) => {
+                            let cleanMessage = error.message;
+                            if(error.code === 'auth/email-already-in-use') {
+                                cleanMessage = "This email address is already registered under another active terminal!";
+                            } else if(error.code === 'auth/weak-password') {
+                                cleanMessage = "Password is too weak! Use at least 6 characters.";
+                            } else if(error.code === 'auth/invalid-email') {
+                                cleanMessage = "The email address format is invalid. Please double check.";
+                            }
+                            window.showSystemPopup("Registration Failed", cleanMessage, true);
+                        });
+                } else {
+                    signInWithEmailAndPassword(auth, email, password)
+                        .then(() => {
+                            window.showSystemPopup("Verified", "Secure terminal access verified!", false, true);
+                        })
+                        .catch((error) => {
+                            let cleanMessage = error.message;
+                            if(error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                                cleanMessage = "Invalid account credentials. Access denied to secure mainframe!";
+                            } else if(error.code === 'auth/invalid-email') {
+                                cleanMessage = "Invalid email formatting entered inside core gateway.";
+                            }
+                            window.showSystemPopup("Access Denied", cleanMessage, true);
+                        });
+                }
+            });
+        };
+
+        window.executeFirebaseLogout = function() {
+            window.triggerTerminalLoader(() => {
+                signOut(auth).then(() => {
+                    document.getElementById('navMenuDrawer').classList.remove('active');
+                    window.showSystemPopup("Session End", "Secure session destroyed cleanly.", false, true);
+                }).catch(() => {
+                    window.showSystemPopup("Tracking Error", "Terminal logout failed processing structural queries.", true);
+                });
+            });
+        };
+
+        // Track Authentication State State Channels
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('mainDashboard').style.display = 'block';
+                document.getElementById('userProfileEmail').innerText = user.email;
+                
+                window.currentUserUid = user.uid;
+                window.currentUserEmail = user.email;
+                
+                localStorage.setItem('user_email_mapping_' + user.uid, user.email);
+
+                if (!localStorage.getItem('reg_date_' + user.uid)) {
+                    let now = new Date();
+                    localStorage.setItem('reg_date_' + user.uid, now.toLocaleString());
+                }
+                window.currentUserRegDate = localStorage.getItem('reg_date_' + user.uid);
+                
+                const savedCart = localStorage.getItem('cart_' + user.uid);
+                window.currentCart = savedCart ? JSON.parse(savedCart) : [];
+                
+                window.renderStoreGrid(window.database);
+                window.refreshDrawerUI();
+            } else {
+                document.getElementById('authScreen').style.display = 'flex';
+                document.getElementById('mainDashboard').style.display = 'none';
+                window.currentUserUid = null;
+                window.currentUserEmail = '';
+                window.currentUserRegDate = '';
+                window.currentCart = [];
+            }
+        });
+
+        // Event Attachment Engine Safe Realization
+        document.getElementById('authSubmitBtn').addEventListener('click', () => {
+            window.executeFirebaseAuthAction();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            window.executeFirebaseLogout();
+        });
+    </script>
+</body>
+</html>
